@@ -41,3 +41,25 @@ A cloud-native microservices application for managing stock portfolios, built wi
 
 ## 📈 Scalability
 The system implements **Client-Side Load Balancing** via Kubernetes Services. The Stock Service is configured to run with **3 Replicas**, ensuring zero downtime during updates or random pod failures.
+
+## 🔄 Request Flow Architecture
+The following diagram illustrates how a user request is processed across the microservices:
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Portfolio as Portfolio Service
+    participant DB as MySQL Database
+    participant Stock as Stock Service (x3)
+
+    User->>Portfolio: GET /portfolios/user1
+    Portfolio->>DB: Query: "Get stocks for user1"
+    DB-->>Portfolio: Result: [AAPL, 10 shares]
+    
+    Portfolio->>Stock: HTTP GET /stocks/AAPL
+    Note right of Stock: Load Balanced (Round Robin)
+    Stock-->>Portfolio: Return $150.00
+    
+    Portfolio->>Portfolio: Calculate Total (10 * $150)
+    Portfolio-->>User: JSON Response { "total": 1500 }
+```
