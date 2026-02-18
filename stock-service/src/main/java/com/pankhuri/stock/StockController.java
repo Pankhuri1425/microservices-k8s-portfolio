@@ -16,7 +16,8 @@ public class StockController {
     public Map<String, Object> getStockPrice(@PathVariable String symbol) {
         // In a real app, we would query a database or external API here.
         // For now, we return hardcoded data to test the connectivity.
-
+        System.out.println("Request received for: " + symbol + " on instance: " + System.getenv("HOSTNAME"));
+        
         Map<String, Object> response = new HashMap<>();
         response.put("symbol", symbol.toUpperCase());
         // Simulate a price: generate a somewhat random number based on the symbol length

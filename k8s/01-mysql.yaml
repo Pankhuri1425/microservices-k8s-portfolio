@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service  # <-- "I want to create a stable network address."
+metadata:
+  name: mysql-service # <-- CRITICAL: This becomes the internal DNS hostname. Other apps will connect to "mysql.investment-app"
+  namespace: investment-app # <-- Put this in our sandbox.
+spec:
+  # THE GLUE: This selector tells the service *which* pods it is responsible for.
+  # It says "Any pod carrying a name tag that says 'app: mysql-db', send traffic to it."
+  selector:
+    app: mysql-db
+  ports:
+    # The port networking details.
+    # Port 3306 comes into the service, and it gets routed to targetPort 3306 on the container.
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment # <-- "I want a manager to ensure my app stays running."
+metadata:
+  name: mysql-deployment
+  namespace: investment-app
+spec:
+  replicas: 1 # <-- "Ensure exactly one copy of this database is running."
+  selector:
+    # The manager needs to know which workers belong to their team.
+    # It looks for workers carrying this name tag.
+    matchLabels:
+      app: mysql-db
+  # THE BLUEPRINT (Template):
+  # Everything below here describes what the actual Pod (the worker) looks like.
+  template:
+    metadata:
+      # THE NAME TAG: We give the pod this label so the Service and Deployment manager can find it.
+      labels:
+        app: mysql-db
+    spec:
+      containers:
+        # This looks very similar to standard Docker Compose.
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          # THE SECRETS CONNECTION:
+          # Instead of hardcoding passwords, we tell the container:
+          # "Go look in the cluster's secret box named 'mysql-credentials' to find your password."
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: root-password
+            # ... (repeats for other environment variables)
+            - name: MYSQL_USER
+              value: pankhuri
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-credentials
+                  key: user-password
+            - name: MYSQL_DATABASE
+              value: investment_db

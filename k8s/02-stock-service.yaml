@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  # CRITICAL: This name becomes the internal DNS hostname.
+  # The portfolio service will connect to "http://stock-service:8080"
+  name: stock-service
+  namespace: investment-app
+spec:
+  selector:
+    app: stock-service
+  ports:
+    - protocol: TCP
+      port: 8080      # The port other pods in the cluster use to talk to this service
+      targetPort: 8080 # The port the Java application inside the container is listening on
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-service-deployment
+  namespace: investment-app
+spec:
+  replicas: 3 # <--- CHANGED THIS FROM 1 TO 3
+  selector:
+    matchLabels:
+      app: stock-service
+  template:
+    metadata:
+      labels:
+        app: stock-service
+    spec:
+      containers:
+        - name: stock-service
+          # The image we built locally in Phase 1
+          image: stock-service:v1
+          # IMPORTANT FOR LOCAL DEV: "Never" tells K8s to use the local Docker cache.
+          # If you don't set this, it tries to find the image on Docker Hub and fails.
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080

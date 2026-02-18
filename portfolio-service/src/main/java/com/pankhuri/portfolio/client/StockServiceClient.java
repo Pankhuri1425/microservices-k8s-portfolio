@@ -8,8 +8,9 @@ import com.pankhuri.portfolio.dto.StockPriceResponse;
 
 // 1. @FeignClient: Tells Spring, "This interface is an HTTP client."
 // name = "stock-service": just a logical name for logging/tracing.
-// url = "http://localhost:8080": THE CRITICAL PART. This is the exact address of the running Stock Service container.
-@FeignClient(name = "stock-service", url = "http://localhost:8080")
+// before -url = "http://localhost:8080": THE CRITICAL PART. This is the exact address of the running Stock Service container.
+// after - Now Spring looks for "stock.service.url" in properties. If not found, it uses the default.
+@FeignClient(name = "stock-service", url = "${stock.service.url}")
 public interface StockServiceClient {
 
     // 2. Define the method call.

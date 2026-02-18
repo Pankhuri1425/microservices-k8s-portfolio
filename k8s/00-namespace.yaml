@@ -1,0 +1,8 @@
+# This defines the API version and type of resource we are creating.
+apiVersion: v1
+kind: Namespace
+metadata:
+  # The name of our isolated sandbox.
+  name: investment-app
+  labels:
+    name: investment-app
