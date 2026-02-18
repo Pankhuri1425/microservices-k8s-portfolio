@@ -10,7 +10,7 @@ A cloud-native microservices application for managing stock portfolios, built wi
 ## 🛠 Tech Stack
 * **Language:** Java 21, Spring Boot 4.0
 * **Containerization:** Docker
-* **Orchestration:** Kubernetes (Deployments, Services, Secrets, ConfigMaps)
+* **Orchestration:** Kubernetes (Deployments, Services, Secrets)
 * **Database:** MySQL
 * **Service Communication:** REST (Feign Client)
 * **Service Discovery:** Kubernetes Native Service Discovery (DNS)
